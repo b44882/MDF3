@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".SimpleService"
+        <service android:name=".MusicPlayerService"
             android:exported="false" />
     </application>
 
