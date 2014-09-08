@@ -17,11 +17,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MusicPlayerService extends IntentService implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+public class MusicPlayerService extends IntentService implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     public static final String TAG = "MusicPlayerService.TAG";
     public static final int STANDARD_NOTIFICATION = 0x01001;
@@ -36,6 +35,7 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
     Intent mIntent;
     NotificationManager mgr;
     NotificationCompat.Builder builder;
+    boolean playing;
 
     public MusicPlayerService() {
         super("MusicPlayerService");
@@ -57,10 +57,8 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
         mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mPlayer.setOnPreparedListener(this);
         mPlayer.setOnCompletionListener(this);
-        mPlayer.setOnErrorListener(this);
         mgr = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         builder = new NotificationCompat.Builder(this);
-        Toast.makeText(this, "Service Created", Toast.LENGTH_SHORT).show();
     }
 
     public void setList(ArrayList<String> arrayList){
@@ -69,6 +67,7 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
 
     public void playSong(){
         mPlayer.reset();
+        playing = true;
         try {
             mPlayer.setDataSource(this, Uri.parse(playlist.get(position)));
         } catch (Exception e) {
@@ -76,7 +75,7 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
             mPlayer.release();
             mPlayer = null;
         }
-        setTrackText();
+        setTrackText("Audio " + (position + 1));
         setNotification();
         mPlayer.prepareAsync();
     }
@@ -100,11 +99,15 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
     }
 
     public void stopSong(){
+        playing = false;
+        setTrackText("");
+        mgr.cancel(STANDARD_NOTIFICATION);
         pause = false;
         mPlayer.stop();
     }
 
     public void pauseSong(){
+        setTrackText("Audio " + (position + 1) + " paused");
         pause = true;
         mediaLength = mPlayer.getCurrentPosition();
         mPlayer.pause();
@@ -140,7 +143,16 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
     protected void onHandleIntent(Intent intent) {
         if(intent.hasExtra(MainActivity.EXTRA_RECEIVER)) {
             mIntent = intent;
-            setTrackText();
+            if (playing){
+                if (pause){
+                    setTrackText("Audio " + (position + 1) + " paused");
+                } else {
+                    setTrackText("Audio " + (position + 1));
+                }
+            } else {
+                setTrackText("");
+            }
+
         }
     }
 
@@ -148,15 +160,18 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
     public void onCompletion(MediaPlayer mediaPlayer) {
         if (continuousPlay){
             nextSong();
+        } else {
+            playing = false;
+            setTrackText("");
+            mgr.cancel(STANDARD_NOTIFICATION);
         }
     }
 
-    public void setTrackText(){
+    public void setTrackText(String track){
         if(mIntent.hasExtra(MainActivity.EXTRA_RECEIVER)) {
-            ResultReceiver receiver = (ResultReceiver)mIntent.getParcelableExtra(MainActivity.EXTRA_RECEIVER);
+            ResultReceiver receiver = mIntent.getParcelableExtra(MainActivity.EXTRA_RECEIVER);
             Bundle result = new Bundle();
-            int trackNumber = position + 1;
-            result.putString(MainActivity.DATA_RETURNED,"Audio " + trackNumber);
+            result.putString(MainActivity.DATA_RETURNED,track);
             result.putBoolean("checked", continuousPlay);
             receiver.send(MainActivity.RESULT_DATA_RETURNED, result);
         }
@@ -175,10 +190,6 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
         mgr.notify(STANDARD_NOTIFICATION, builder.build());
     }
 
-    @Override
-    public boolean onError(MediaPlayer mediaPlayer, int i, int i2) {
-        return false;
-    }
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
