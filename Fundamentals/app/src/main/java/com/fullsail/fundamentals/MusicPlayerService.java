@@ -31,6 +31,8 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
     int position = 0;
     Boolean continuousPlay = false;
     Boolean pause = false;
+    Boolean loop = false;
+    Boolean shuffle = false;
     int mediaLength;
     Intent mIntent;
     NotificationManager mgr;
@@ -141,7 +143,7 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if(intent.hasExtra(MainActivity.EXTRA_RECEIVER)) {
+        if(intent.hasExtra(ControlsFragment.EXTRA_RECEIVER)) {
             mIntent = intent;
             if (playing){
                 if (pause){
@@ -168,12 +170,12 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
     }
 
     public void setTrackText(String track){
-        if(mIntent.hasExtra(MainActivity.EXTRA_RECEIVER)) {
-            ResultReceiver receiver = mIntent.getParcelableExtra(MainActivity.EXTRA_RECEIVER);
+        if(mIntent.hasExtra(ControlsFragment.EXTRA_RECEIVER)) {
+            ResultReceiver receiver = mIntent.getParcelableExtra(ControlsFragment.EXTRA_RECEIVER);
             Bundle result = new Bundle();
-            result.putString(MainActivity.DATA_RETURNED,track);
+            result.putString(ControlsFragment.DATA_RETURNED,track);
             result.putBoolean("checked", continuousPlay);
-            receiver.send(MainActivity.RESULT_DATA_RETURNED, result);
+            receiver.send(ControlsFragment.RESULT_DATA_RETURNED, result);
         }
     }
 

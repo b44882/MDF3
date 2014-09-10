@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Continuous"
-            android:id="@+id/continueCheck"
+            android:id="@+id/continuousCheckBox"
             android:checked="false"
             android:textSize="16dp" />
 
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Loop"
-            android:id="@+id/checkBox2"
+            android:id="@+id/loopCheckBox"
             android:checked="false"
             android:textSize="16dp" />
 
@@ -79,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Shuffle"
-            android:id="@+id/shuffleCheck"
+            android:id="@+id/shuffleCheckBox"
             android:checked="false"
             android:textSize="16dp" />
     </LinearLayout>
