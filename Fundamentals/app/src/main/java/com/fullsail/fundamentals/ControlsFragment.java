@@ -119,9 +119,19 @@ public class ControlsFragment extends AlbumFragment implements View.OnClickListe
                     mCallbacks.trackNameChange((resultData.getString(DATA_RETURNED, "")));
                 }
                 Log.i(TAG, "Breakpoint");
-                if (resultData.containsKey("checked")){
-                    if (resultData.getBoolean("checked")) {
+                if (resultData.containsKey("continuous_checked")){
+                    if (resultData.getBoolean("continuous_checked")) {
                         continuousCheckBox.setChecked(true);
+                    }
+                }
+                if (resultData.containsKey("loop_checked")){
+                    if (resultData.getBoolean("loop_checked")) {
+                        loopCheckBox.setChecked(true);
+                    }
+                }
+                if (resultData.containsKey("shuffle_checked")){
+                    if (resultData.getBoolean("shuffle_checked")) {
+                        shuffleCheckBox.setChecked(true);
                     }
                 }
             }
@@ -143,6 +153,14 @@ public class ControlsFragment extends AlbumFragment implements View.OnClickListe
             mService.pauseSong();
         } else if (view.getId() == R.id.continuousCheckBox){
             mService.setContinuousPlay();
+            loopCheckBox.setChecked(false);
+        } else if (view.getId() == R.id.loopCheckBox){
+            mService.setLoop();
+            continuousCheckBox.setChecked(false);
+            shuffleCheckBox.setChecked(false);
+        } else if (view.getId() == R.id.shuffleCheckBox){
+            mService.setShuffle();
+            loopCheckBox.setChecked(false);
         }
     }
 

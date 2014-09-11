@@ -8,6 +8,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -19,11 +20,14 @@ import android.os.ResultReceiver;
 import android.support.v4.app.NotificationCompat;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MusicPlayerService extends IntentService implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     public static final String TAG = "MusicPlayerService.TAG";
     public static final int STANDARD_NOTIFICATION = 0x01001;
+    public static final int EXPANDED_NOTIFICATION = 0x01002;
+    NotificationManager mgr;
 
     BoundServiceBinder mBinder;
     private MediaPlayer mPlayer;
@@ -35,8 +39,6 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
     Boolean shuffle = false;
     int mediaLength;
     Intent mIntent;
-    NotificationManager mgr;
-    NotificationCompat.Builder builder;
     boolean playing;
 
     public MusicPlayerService() {
@@ -59,8 +61,9 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
         mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mPlayer.setOnPreparedListener(this);
         mPlayer.setOnCompletionListener(this);
+
         mgr = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        builder = new NotificationCompat.Builder(this);
+
     }
 
     public void setList(ArrayList<String> arrayList){
@@ -84,9 +87,15 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
 
     public void nextSong(){
         pause = false;
-        position +=1;
-        if (position > 2){
-            position = 0;
+        if (shuffle)
+        {
+            position = randInt(0,2);
+            this.playSong();
+        } else {
+            position += 1;
+            if (position > 2) {
+                position = 0;
+            }
         }
         this.playSong();
     }
@@ -117,6 +126,26 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
 
     public void setContinuousPlay(){
         continuousPlay = !continuousPlay;
+        if (loop){
+            loop = false;
+        }
+    }
+
+    public void setLoop () {
+        loop = !loop;
+        if (continuousPlay){
+            continuousPlay = false;
+        }
+        if (shuffle) {
+            shuffle = false;
+        }
+    }
+
+    public void setShuffle() {
+        shuffle = !shuffle;
+        if (loop){
+            loop = false;
+        }
     }
 
     @Override
@@ -160,8 +189,14 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        if (continuousPlay){
+        if (continuousPlay) {
             nextSong();
+
+        } else if (loop) {
+            playSong();
+        } else if (shuffle) {
+            position = randInt(0,2);
+            playSong();
         } else {
             playing = false;
             setTrackText("");
@@ -174,22 +209,32 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
             ResultReceiver receiver = mIntent.getParcelableExtra(ControlsFragment.EXTRA_RECEIVER);
             Bundle result = new Bundle();
             result.putString(ControlsFragment.DATA_RETURNED,track);
-            result.putBoolean("checked", continuousPlay);
+            result.putBoolean("continuous_checked", continuousPlay);
+            result.putBoolean("shuffle_checked", shuffle);
+            result.putBoolean("loop_checked", loop);
             receiver.send(ControlsFragment.RESULT_DATA_RETURNED, result);
         }
     }
 
     public void setNotification(){
+
+        Bitmap album = BitmapFactory.decodeResource(getResources(), R.drawable.album);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+
+        NotificationCompat.BigPictureStyle notificationStyle = new NotificationCompat.BigPictureStyle();
+        notificationStyle.bigPicture(album);
+
         Context context = getApplicationContext();
         Intent notificationIntent = new Intent(context, MainActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
         builder.setSmallIcon(R.drawable.ic_music2);
-        builder.setLargeIcon(BitmapFactory.decodeResource(
-                getResources(), R.drawable.ic_music2));
+        builder.setLargeIcon(album);
         builder.setContentTitle("Audio " + (position + 1));
         builder.setContentText("Currently Playing: Audio " + (position + 1));
         builder.setContentIntent(pIntent);
-        mgr.notify(STANDARD_NOTIFICATION, builder.build());
+        builder.setStyle(notificationStyle);
+        mgr.notify(EXPANDED_NOTIFICATION, builder.build());
     }
 
 
@@ -200,6 +245,14 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
         }
         pause = false;
         mediaPlayer.start();
+    }
+
+    public static int randInt(int min, int max) {
+
+        Random rand = new Random();
+        int randomNum = rand.nextInt((max - min) + 1) + min;
+
+        return randomNum;
     }
 
 }
