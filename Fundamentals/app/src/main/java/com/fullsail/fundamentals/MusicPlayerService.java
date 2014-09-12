@@ -87,11 +87,12 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
 
     public void nextSong(){
         pause = false;
+
         if (shuffle)
         {
             position = randInt(0,2);
             this.playSong();
-        } else {
+        } else if (!loop) {
             position += 1;
             if (position > 2) {
                 position = 0;
@@ -102,9 +103,11 @@ public class MusicPlayerService extends IntentService implements MediaPlayer.OnP
 
     public void prevSong(){
         pause = false;
-        position = position - 1;
-        if (position < 0){
-            position = 2;
+        if (!loop) {
+            position = position - 1;
+            if (position < 0) {
+                position = 2;
+            }
         }
         this.playSong();
     }
