@@ -16,6 +16,13 @@
             android:finishOnTaskLaunch="true">
         </activity>
 
+        <activity android:name=".ListActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:clearTaskOnLaunch="true"
+            android:finishOnTaskLaunch="true">
+        </activity>
+
         <receiver android:name=".FormWidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
