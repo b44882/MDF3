@@ -25,12 +25,12 @@ public class FormWidgetProvider extends AppWidgetProvider {
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
 
             RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-            widgetView.setRemoteAdapter(R.id.itemListView, intent);
-            widgetView.setEmptyView(R.id.itemListView, R.id.empty);
+            widgetView.setRemoteAdapter(R.id.widgetListView, intent);
+            widgetView.setEmptyView(R.id.widgetListView, R.id.empty);
 
             Intent itemIntent = new Intent(ACTION_VIEW_DETAILS);
             PendingIntent pIntent = PendingIntent.getBroadcast(context, 0, itemIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            widgetView.setPendingIntentTemplate(R.id.itemListView, pIntent);
+            widgetView.setPendingIntentTemplate(R.id.widgetListView, pIntent);
 
             appWidgetManager.updateAppWidget(widgetId, widgetView);
         }

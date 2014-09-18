@@ -18,7 +18,7 @@ public class FormActivity extends Activity implements OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_form);
+        setContentView(R.layout.activity_main);
 
         Intent launcherIntent = getIntent();
         Bundle extras = launcherIntent.getExtras();
@@ -50,7 +50,7 @@ public class FormActivity extends Activity implements OnClickListener {
             PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             RemoteViews widgetView = new RemoteViews(getPackageName(), R.layout.widget_layout);
-            widgetView.setOnClickPendingIntent(R.id.formButton, pIntent);
+            widgetView.setOnClickPendingIntent(R.id.widgetAddButton, pIntent);
 
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
             appWidgetManager.updateAppWidget(mWidgetId, widgetView);
