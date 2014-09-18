@@ -1,66 +1,121 @@
 package com.fullsail.widget;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.RemoteViews;
+import android.widget.TextView;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 /**
  * Created by administrator on 9/16/14.
  */
-public class FormActivity extends Activity implements OnClickListener {
+public class FormActivity extends Activity {
 
-    private int mWidgetId;
+    Button createItemButton;
+
+    private static Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form);
 
-        Intent launcherIntent = getIntent();
-        Bundle extras = launcherIntent.getExtras();
 
-        mWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        FormFragment formFragment = FormFragment.newInstance();
+        transaction.replace(R.id.list_fragmentHolder, formFragment, FormFragment.TAG);
+        transaction.commit();
 
-        if(extras != null) {
-            mWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-        }
+        createItemButton = (Button) findViewById(R.id.form_button);
 
-        if(mWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
-            setResult(RESULT_CANCELED);
-            finish();
-        }
-
-        findViewById(R.id.addItemButton).setOnClickListener(this);
+        createItemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finishActivity();
+            }
+        });
     }
 
     @Override
-    public void onClick(View v) {
-        updateWidget();
-        close();
+    protected void onPause(){
+        super.onPause();
+        Log.i(ItemFragment.TAG, "Activity is paused");
+        finish();
     }
 
-    private void updateWidget() {
-        if(mWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-            Intent intent = new Intent(this, FormActivity.class);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mWidgetId);
-            PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    private void finishActivity() {
 
-            RemoteViews widgetView = new RemoteViews(getPackageName(), R.layout.widget_layout);
-            widgetView.setOnClickPendingIntent(R.id.widgetAddButton, pIntent);
+        TextView tv = (TextView)findViewById(R.id.nameEditText);
+        String nameString = String.valueOf(tv.getText());
 
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
-            appWidgetManager.updateAppWidget(mWidgetId, widgetView);
+        tv = (TextView)findViewById(R.id.classEditText);
+        String classString = String.valueOf(tv.getText());
+
+        tv = (TextView)findViewById(R.id.descEditText);
+        String descString = String.valueOf(tv.getText());
+
+        ArrayList<CharacterItem> characterGroup = openObjectSerialize();
+        if (characterGroup == null){
+            characterGroup = new ArrayList<CharacterItem>();
+        }
+        characterGroup.add(new CharacterItem(nameString,classString,descString));
+        objectSerialize(characterGroup);
+
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int appWidgetIds[] = appWidgetManager.getAppWidgetIds(
+                new ComponentName(context, FormWidgetProvider.class));
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widgetListView);
+
+        finish();
+    }
+
+    public void objectSerialize (ArrayList<CharacterItem> list){
+
+        try {
+            FileOutputStream fos = openFileOutput("widget_save.bin", Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(list);
+            oos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private void close() {
-        Intent result = new Intent();
-        result.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mWidgetId);
-        setResult(RESULT_OK, result);
-        finish();
+    @SuppressWarnings("unchecked")
+    public ArrayList<CharacterItem> openObjectSerialize() {
+        ArrayList<CharacterItem> list;
+        try {
+            FileInputStream fin = openFileInput("widget_save.bin");
+            ObjectInputStream oin = new ObjectInputStream(fin);
+            list = (ArrayList<CharacterItem>) oin.readObject();
+            oin.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+            list = null;
+        }
+
+        return list;
     }
+
+
+
+
+
 }

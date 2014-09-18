@@ -24,8 +24,6 @@ import java.util.ArrayList;
 
 public class ListActivity extends Activity implements ListFragment.Callbacks, Serializable, View.OnClickListener {
 
-    public static final int NEXT_REQUESTCODE = 1;
-    public static final int ITEM_REQUESTCODE = 2;
     public static final String EXTRA_ITEM = "com.fullsail.Widget.EXTRA_ITEM";
 
 
@@ -40,7 +38,7 @@ public class ListActivity extends Activity implements ListFragment.Callbacks, Se
             @Override
             public void onClick(View view) {
                 Intent nextActivity = new Intent(ListActivity.this, FormActivity.class);
-                ListActivity.this.startActivityForResult(nextActivity, NEXT_REQUESTCODE);
+                ListActivity.this.startActivity(nextActivity);
             }
         });
 
@@ -66,63 +64,6 @@ public class ListActivity extends Activity implements ListFragment.Callbacks, Se
         Log.i(ItemFragment.TAG, "Activity is paused");
         finish();
     }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {   //When activity returns from Create
-        if (resultCode == RESULT_OK && requestCode == NEXT_REQUESTCODE) {
-
-            ArrayList<PassableObject> passList;
-            ArrayList<CharacterItem> serList;
-            Bundle result = data.getExtras();
-            serList = openObjectSerialize();
-            if (serList != null){
-                passList = convertSerToParse(serList);
-            } else {
-                passList = new ArrayList<PassableObject>();
-                serList = new ArrayList<CharacterItem>();
-            }
-
-            String nameString = result.getString("name");
-            String classString = result.getString("class");
-            String descString = result.getString("desc");
-
-            //Serialize
-            CharacterItem serObject = new CharacterItem(nameString,classString,descString);
-            serList.add(serObject);
-            objectSerialize(serList);
-
-            //Parse
-            PassableObject passObject = new PassableObject(nameString,classString,descString);
-            passList.add(passObject);
-
-            FragmentManager fragmentManager =  getFragmentManager();
-            FragmentTransaction trans = fragmentManager.beginTransaction();
-            ListFragment masterFragment = ListFragment.newInstance(passList);
-            trans.replace(R.id.list_fragmentHolder, masterFragment, ListFragment.TAG);
-            trans.commit();
-        }
-        if (resultCode == RESULT_OK && requestCode == ITEM_REQUESTCODE) {
-
-            ArrayList<PassableObject> passList;
-            ArrayList<CharacterItem> serList;
-            Bundle result = data.getExtras();
-            serList = openObjectSerialize();
-            int position = result.getInt("position");
-            serList.remove(position);
-            objectSerialize(serList);
-            if (serList != null){
-                passList = convertSerToParse(serList);
-            } else {
-                passList = new ArrayList<PassableObject>();
-                serList = new ArrayList<CharacterItem>();
-            }
-            FragmentManager fragmentManager =  getFragmentManager();
-            FragmentTransaction trans = fragmentManager.beginTransaction();
-            ListFragment masterFragment = ListFragment.newInstance(passList);
-            trans.replace(R.id.list_fragmentHolder, masterFragment, ListFragment.TAG);
-            trans.commit();
-        }
-    }
-
 
     public ArrayList<PassableObject> convertSerToParse (ArrayList<CharacterItem> list){
         ArrayList parseList = new ArrayList();

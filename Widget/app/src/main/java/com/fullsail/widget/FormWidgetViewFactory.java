@@ -114,6 +114,8 @@ public class FormWidgetViewFactory implements RemoteViewsFactory, Serializable {
 
 	@Override
 	public void onDataSetChanged() {
+
+        Log.i("TEXT:", "onDataSetchanged() activated");
 		// Heavy lifting code can go here without blocking the UI.
 		// You would update the data in your collection here as well.
 	}
