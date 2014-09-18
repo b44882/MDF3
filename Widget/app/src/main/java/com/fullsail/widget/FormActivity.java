@@ -78,11 +78,6 @@ public class FormActivity extends Activity {
         characterGroup.add(new CharacterItem(nameString,classString,descString));
         objectSerialize(characterGroup);
 
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        int appWidgetIds[] = appWidgetManager.getAppWidgetIds(
-                new ComponentName(context, FormWidgetProvider.class));
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widgetListView);
-
         finish();
     }
 
