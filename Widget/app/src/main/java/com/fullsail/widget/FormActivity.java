@@ -15,7 +15,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.RemoteViews;
 import android.widget.TextView;
-
+import android.content.BroadcastReceiver;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -28,8 +28,7 @@ import java.util.ArrayList;
 public class FormActivity extends Activity {
 
     Button createItemButton;
-
-    private static Context context;
+    public static final String ACTION_UPDATE = "com.fullsail.widget.ACTION_UPDATE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +43,6 @@ public class FormActivity extends Activity {
         transaction.commit();
 
         createItemButton = (Button) findViewById(R.id.form_button);
-
         createItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -77,6 +75,24 @@ public class FormActivity extends Activity {
         }
         characterGroup.add(new CharacterItem(nameString,classString,descString));
         objectSerialize(characterGroup);
+
+
+
+        AppWidgetManager widgetManager = AppWidgetManager.getInstance(getApplicationContext());
+        ComponentName widgetComponent = new ComponentName(getApplicationContext(), FormWidgetProvider.class);
+        int[] widgetIds = widgetManager.getAppWidgetIds(widgetComponent);
+        Intent update = new Intent();
+        update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
+        update.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        sendBroadcast(update);
+
+        Intent intent = new Intent(ACTION_UPDATE);
+        sendBroadcast(intent);
+
+        Intent nextActivity = new Intent(FormActivity.this, ListActivity.class);
+        FormActivity.this.startActivity(nextActivity);
+
+
 
         finish();
     }

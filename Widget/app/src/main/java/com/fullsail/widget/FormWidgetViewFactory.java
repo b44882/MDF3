@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 public class FormWidgetViewFactory implements RemoteViewsFactory, Serializable {
 	
 	private static final int ID_CONSTANT = 0x0101010;
+    public static final String TAG = "FormWidgetViewFactory";
 	
 	private ArrayList<CharacterItem> mArticles;
 	private Context mContext;
@@ -27,7 +28,7 @@ public class FormWidgetViewFactory implements RemoteViewsFactory, Serializable {
 
 	@Override
 	public void onCreate() {
-        Log.i("TEXT", "OnCreate");
+        Log.i(TAG, "onCreate");
         if (mArticles == null) {
             Log.i("TEXT", "inNull");
             mArticles = new ArrayList<CharacterItem>();
@@ -56,7 +57,6 @@ public class FormWidgetViewFactory implements RemoteViewsFactory, Serializable {
 
     @SuppressWarnings("unchecked")
     public ArrayList<CharacterItem> openObjectSerialize() {
-        Log.i("TEXT", "openObjectSerialize");
         ArrayList<CharacterItem> list;
         try {
             FileInputStream fin = mContext.openFileInput("widget_save.bin");
@@ -115,7 +115,7 @@ public class FormWidgetViewFactory implements RemoteViewsFactory, Serializable {
 	@Override
 	public void onDataSetChanged() {
 
-        Log.i("TEXT:", "onDataSetchanged() activated");
+        Log.i(TAG, "onDataSetchanged() activated");
 		// Heavy lifting code can go here without blocking the UI.
 		// You would update the data in your collection here as well.
 	}

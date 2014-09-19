@@ -35,6 +35,7 @@
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.fullsail.widget.ACTION_VIEW_DETAILS" />
                 <action android:name="com.fullsail.widget.ACTION_ADD_ITEM" />
+                <action android:name="com.fullsail.widget.ACTION_UPDATE" />
             </intent-filter>
 
             <meta-data android:name="android.appwidget.provider"
