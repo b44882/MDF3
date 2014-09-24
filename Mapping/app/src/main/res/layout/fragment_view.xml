@@ -21,14 +21,6 @@
         android:padding="5dp"
         android:textSize="18dp" />
 
-    <ImageView
-        android:layout_width="221dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView"
-        android:layout_weight="0.48"
-        android:src="userPic"
-        android:contentDescription="pic" />
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
