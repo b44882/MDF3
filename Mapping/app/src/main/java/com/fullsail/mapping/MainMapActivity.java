@@ -6,7 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends Activity {
+public class MainMapActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -14,7 +14,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         MainMapFragment frag = new MainMapFragment();
-        getFragmentManager().beginTransaction().replace(R.id.container, frag).commit();
+        getFragmentManager().beginTransaction().replace(R.id.main_container, frag).commit();
     }
 
 
