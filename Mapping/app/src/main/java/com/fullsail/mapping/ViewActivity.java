@@ -1,6 +1,8 @@
 package com.fullsail.mapping;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 
 /**
@@ -13,8 +15,14 @@ public class ViewActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view);
 
-        ViewFragment frag = new ViewFragment();
-        getFragmentManager().beginTransaction().replace(R.id.view_container, frag).commit();
+        Bundle extras = getIntent().getExtras();
+        MarkerItem item = (MarkerItem) extras.getSerializable("MarkerItem");
+
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        ViewFragment viewFragment = ViewFragment.newInstance(item);
+        transaction.replace(R.id.view_container, viewFragment, ViewFragment.TAG);
+        transaction.commit();
     }
 
 }

@@ -10,34 +10,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="0.05"
-        android:id="@+id/latLayout">
+        android:id="@+id/latLayout"
+        android:gravity="left">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Latitude"
-            android:id="@+id/staticFormLat"
-            android:layout_weight="0.12" />
+            android:id="@+id/formLatText"
+            android:padding="5dp"
+            android:text="Lat" />
 
-        <EditText
-            android:layout_width="279dp"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/formLat"
-            android:layout_weight="0.20" />
+            android:text=","
+            android:id="@+id/staticComma" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Long"
+            android:id="@+id/formLongText" />
+
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="53dp"
+        android:layout_height="wrap_content"
         android:id="@+id/longLayout">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Longitude"
-            android:id="@+id/staticFormLong" />
+            android:text="Desc1: "
+            android:id="@+id/staticFormDesc1"
+            android:padding="5dp"
+            android:layout_weight="0.04" />
 
         <LinearLayout
             android:orientation="horizontal"
@@ -48,28 +57,74 @@
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/formLong"
-            android:layout_weight="0.83" />
+            android:id="@+id/formDesc1"
+            android:layout_weight="0.68" />
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1.02">
+        android:id="@+id/nameLayout">
 
-        <Button
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Picture"
-            android:id="@+id/formPictureButton"
-            android:layout_gravity="center_vertical" />
+            android:text="Desc2: "
+            android:id="@+id/staticFormDesc2"
+            android:padding="5dp"
+            android:layout_weight="0.12" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/formDesc2"
+            android:layout_weight="0.69" />
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="297dp"
+        android:layout_height="248dp"
+        android:weightSum="1"
+        android:id="@+id/pictureButtonImageLayout"
+        android:layout_weight="0.40">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="166dp"
+            android:layout_height="fill_parent"
+            android:id="@+id/pictureButtonHolder"
+            android:gravity="center">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Picture"
+                android:id="@+id/formPictureButton"
+                android:layout_gravity="center_vertical" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/imageHolder"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/formImageView"
+                android:layout_gravity="center_vertical" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center">
 
@@ -77,7 +132,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Save"
-            android:id="@+id/button" />
+            android:id="@+id/formSaveButton" />
     </LinearLayout>
 
 </LinearLayout>

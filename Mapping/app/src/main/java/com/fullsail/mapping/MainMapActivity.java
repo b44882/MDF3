@@ -1,12 +1,23 @@
 package com.fullsail.mapping;
 
 import android.app.Activity;
+import android.app.ListActivity;
+import android.content.Context;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import org.apache.http.protocol.HTTP;
 
 
-public class MainMapActivity extends Activity {
+public class MainMapActivity extends Activity implements View.OnClickListener {
+
+    double mLat = 0;
+    double mLon = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,7 +26,9 @@ public class MainMapActivity extends Activity {
 
         MainMapFragment frag = new MainMapFragment();
         getFragmentManager().beginTransaction().replace(R.id.main_container, frag).commit();
+        findViewById(R.id.mapAddButton).setOnClickListener(this);
     }
+
 
 
     @Override
@@ -36,4 +49,24 @@ public class MainMapActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public void setLatLon (Double lat, Double lon){
+        mLat = lat;
+        mLon = lon;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.mapAddButton){
+
+            Intent nextActivity = new Intent(MainMapActivity.this, FormActivity.class);
+            nextActivity.putExtra("Latitude",mLat);
+            nextActivity.putExtra("Longitude",mLon);
+            MainMapActivity.this.startActivity(nextActivity);
+            finish();
+
+        }
+    }
+
+
 }

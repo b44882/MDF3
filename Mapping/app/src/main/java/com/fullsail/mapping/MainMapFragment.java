@@ -1,6 +1,7 @@
 package com.fullsail.mapping;
 
 import android.app.AlertDialog;
+import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,13 +22,25 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.WeakHashMap;
+
 /**
  * Created by administrator on 9/23/14.
  */
-public class MainMapFragment extends MapFragment implements GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMapClickListener, LocationListener {
+public class MainMapFragment extends MapFragment implements GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMapLongClickListener, LocationListener {
 
     GoogleMap mMap;
     LocationManager mManager;
+    double mLat;
+    double mLong;
+
+    HashMap<Marker, MarkerItem> markerMap = new HashMap <Marker, MarkerItem>();
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -35,68 +49,74 @@ public class MainMapFragment extends MapFragment implements GoogleMap.OnInfoWind
         mManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
         mManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, this);
         Location loc = mManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        double latitude = loc.getLatitude();
-        double longitude = loc.getLongitude();
+        if (loc != null){
+            mLat= loc.getLatitude();
+            mLong = loc.getLongitude();
+            ((MainMapActivity)getActivity()).setLatLon(mLat, mLong);
+        }
 
         mMap = getMap();
-        mMap.addMarker(new MarkerOptions().position(new LatLng(28.590647,-81.304510)).title("MDVBS Faculty Offices"));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(28.591748,-81.305910)).title("Crispers"));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(28.595842,-81.304188)).title("Full Sail Live"));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(28.596591,-81.301302)).title("Advising"));
 
+        ArrayList<MarkerItem> markerList = openObjectSerialize();
+
+        if (markerList != null){
+            for (int i = 0; i < markerList.size(); i++){
+                MarkerItem currentItem = markerList.get(i);
+                double cLat = Double.parseDouble(currentItem.getLat());
+                double cLon = Double.parseDouble(currentItem.getLong());
+                String title = currentItem.getDesc1();
+                Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(cLat,cLon)).title(title));
+                markerMap.put(marker,currentItem);
+            }
+        }
         mMap.setInfoWindowAdapter(new MarkerAdapter());
         mMap.setOnInfoWindowClickListener(this);
-        mMap.setOnMapClickListener(this);
+        mMap.setOnMapLongClickListener(this);
         if (loc != null){
-            mMap.addMarker(new MarkerOptions().position(new LatLng(loc.getLatitude(),loc.getLongitude())).title("GPS Home"));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(loc.getLatitude(), loc.getLongitude()), 16));
-
-
         } else {
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(28.593770, -81.303797), 16));
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public ArrayList<MarkerItem> openObjectSerialize() {
+        ArrayList<MarkerItem> list;
+        try {
+            FileInputStream fin = getActivity().openFileInput("marker_save.bin");
+            ObjectInputStream oin = new ObjectInputStream(fin);
+            list = (ArrayList<MarkerItem>) oin.readObject();
+            oin.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+            list = null;
+        }
+
+        return list;
+    }
+
 
     @Override
     public void onInfoWindowClick(final Marker marker) {
+        MarkerItem currentItem = markerMap.get(marker);
 
-        new AlertDialog.Builder(getActivity())
-                .setTitle("Marker Clicked")
-                .setMessage("You clicked on: " + marker.getTitle())
-                .setPositiveButton("Close", null)
-                .setNegativeButton("Remove", new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        marker.remove();
-                    }
-                })
-                .show();
+        if(currentItem != null) {
+            Intent items = new Intent(getActivity(), ViewActivity.class);
+            items.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            items.putExtra("MarkerItem", currentItem);
+            MainMapFragment.this.startActivity(items);
+            getActivity().finish();
+        }
 
     }
 
-    @Override
-    public void onMapClick(final LatLng latLng) {
-
-        new AlertDialog.Builder(getActivity())
-                .setTitle("Map Clicked")
-                .setMessage("Add new marker here?")
-                .setNegativeButton("No", null)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mMap.addMarker(new MarkerOptions().position(latLng).title("New Marker"));
-                    }
-                })
-                .show();
-
-    }
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.e("MainMapFragment: ", "Location changed to " + location);
+        if (location != null){
+            mLat= location.getLatitude();
+            mLong = location.getLongitude();
+        }
 
     }
 
@@ -113,6 +133,17 @@ public class MainMapFragment extends MapFragment implements GoogleMap.OnInfoWind
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        ((MainMapActivity)getActivity()).setLatLon(latLng.latitude, latLng.longitude);
+        Intent nextActivity = new Intent(getActivity(), FormActivity.class);
+        nextActivity.putExtra("Latitude", latLng.latitude);
+        nextActivity.putExtra("Longitude", latLng.longitude);
+        MainMapFragment.this.startActivity(nextActivity);
     }
 
     private class MarkerAdapter implements GoogleMap.InfoWindowAdapter {

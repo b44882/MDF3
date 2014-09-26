@@ -1,6 +1,8 @@
 package com.fullsail.mapping;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 
 /**
@@ -13,8 +15,19 @@ public class FormActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form);
 
-        ViewFragment frag = new ViewFragment();
-        getFragmentManager().beginTransaction().replace(R.id.form_container, frag).commit();
+
+        Bundle extras = getIntent().getExtras();
+        double mLat = extras.getDouble("Latitude");
+        double mLong = extras.getDouble("Longitude");
+
+
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        FormFragment formFragment = FormFragment.newInstance(mLat,mLong);
+        transaction.replace(R.id.form_container, formFragment, FormFragment.TAG);
+        transaction.commit();
     }
+
+
 
 }
